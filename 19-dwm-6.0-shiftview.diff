@@ -1,0 +1,37 @@
+--- dwm.c.orig	2012-12-18 00:31:51.948744734 -0800
++++ b/dwm-6.0/dwm.c	2012-12-18 00:33:26.855427329 -0800
+@@ -245,6 +245,7 @@
+ static void updatetitle(Client *c);
+ static void updatewmhints(Client *c);
+ static void view(const Arg *arg);
++static void shiftview(const Arg *arg);
+ static Client *wintoclient(Window w);
+ static Monitor *wintomon(Window w);
+ static int xerror(Display *dpy, XErrorEvent *ee);
+@@ -2052,6 +2053,26 @@
+ 	arrange(selmon);
+ }
+ 
++/** Function to shift the current view to the left/right
++ *
++ * @param: "arg->i" stores the number of tags to shift right (positive value)
++ *          or left (negative value)
++ */
++void
++shiftview(const Arg *arg) {
++  Arg shifted;
++
++  if(arg->i > 0) // left circular shift
++    shifted.ui = (selmon->tagset[selmon->seltags] << arg->i)
++       | (selmon->tagset[selmon->seltags] >> (LENGTH(tags) - arg->i));
++
++  else // right circular shift
++    shifted.ui = selmon->tagset[selmon->seltags] >> (- arg->i)
++       | selmon->tagset[selmon->seltags] << (LENGTH(tags) + arg->i);
++
++  view(&shifted);
++}
++
+ Client *
+ wintoclient(Window w) {
+ 	Client *c;
